@@ -1,0 +1,57 @@
+{
+    "intents": [{
+            "tag": "greeting",
+            "patterns": [
+                "Hi",
+                "Hey",
+                "Howdy",
+                "Hello",
+                "Good day",
+                "How are you?",
+                "Is anyone there?"
+            ],
+            "responses": [
+                "Hey!",
+                "Hello!",
+                "Hi there! How can I help you?",
+                "Hey there! What can I do for you?"
+            ]
+        },
+        {
+            "tag": "goodbye",
+            "patterns": [
+                "Bye",
+                "Good bye",
+                "See you later"
+            ],
+            "responses": [
+                "Bye",
+                "Buh bye",
+                "See you later!",
+                "Have a nice day!",
+                "Good bye",
+                "Bye! Come back again soon.",
+                "See you soon"
+            ]
+        },
+        {
+            "tag": "thanks",
+            "patterns": [
+                "Thanks",
+                "Thank you",
+                "Thanks a lot",
+                "Thanks a ton",
+                "That was helpful!"
+            ],
+            "responses": [
+                "Sure",
+                "Any time",
+                "My pleasure!",
+                "Happy to help!",
+                "Mention not",
+                "No problem!",
+                "That was the least I could do!"
+            ]
+        }
+    ]
+}
