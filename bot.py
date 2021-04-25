@@ -42,7 +42,7 @@ def greeting_response(text):
     user_greetings = ['wassup', 'hi', 'hey',
                       'greetings', 'hola', 'howdy', 'hello']
 
-    for word in text.splot():
+    for word in text.split():
         if word in user_greetings:
             return random.choice(bot_greetings)
 
@@ -73,3 +73,37 @@ def bot_response(user_input):
     similarity_scores_list = similarity_scores.flatten()
 
     index = index_sort(similarity_scores_list)
+    index = index[1:]
+    response_flag = 0
+
+    j = 0
+    for i in range(len(index)):
+        if similarity_scores_list[index[i]] > 0.0:
+            bot_response = bot_response + ' ' + sentence_list[index[i]]
+            response_flag = 1
+            j = j + 1
+        if j > 2:
+            break
+
+        if response_flag == 0:
+            bot_response = bot_response + ' ' + "I apologize, I don't understand."
+
+        sentence_list.remove(user_input)
+
+        return bot_response
+
+
+print('Doc Bot: I am Doctor Bot or Doc Bot for short. I will answer your queries about CKD')
+
+exit_list = ['exit', 'see you later', 'bye', 'quit', 'break']
+
+while(True):
+    user_input = input()
+    if user_input.lower() in exit_list:
+        print('Doc Bot: Chat with you later!')
+        break
+    else:
+        if greeting_response(user_input) != None:
+            print('Doc Bot: '+greeting_response(user_input))
+        else:
+            print('Doc Bot: ' + bot_response(user_input))
