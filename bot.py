@@ -23,7 +23,7 @@ model = NeuralNetwork(input_size, hidden_size, output_size).to(device)
 model.load_state_dict(model_state)
 model.eval()
 
-bot_name = "Doc Bot"
+bot_name = "Intelligent Bot"
 
 
 def get_response(msg):
