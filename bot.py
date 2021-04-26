@@ -1,109 +1,47 @@
-# Intelligent chat bot program
-
-# Import the libraries
-
-from operator import length_hint
-from nltk.translate.bleu_score import sentence_bleu
-from newspaper import Article
-import nltk
 import random
-import string
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import warnings
+import json
+import torch
+from model import NeuralNetwork
+from nltk_functions import tokenize, BoW
 
-warnings.filterwarnings('ignore')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-nltk.download('punkt', quiet=True)
+with open('intents.json', 'r') as json_data:
+    intents = json.load(json_data)
 
+FILE = "data.pth"
+data = torch.load(FILE)
 
-article = Article(
-    'https://www.kidneyfund.org/kidney-disease/chronic-kidney-disease-ckd/')
-article.download()
-article.parse()
+input_size = data["input_size"]
+hidden_size = data["hidden_size"]
+output_size = data["output_size"]
+all_words = data['all_words']
+tags = data['tags']
+model_state = data["model_state"]
 
-article.nlp()
-corpus = article.text
+model = NeuralNetwork(input_size, hidden_size, output_size).to(device)
+model.load_state_dict(model_state)
+model.eval()
 
-print(corpus)
-
-
-text = corpus
-sentence_list = nltk.sent_tokenize(text)
-
-print(sentence_list)
-
-
-def greeting_response(text):
-    text = text.lower()
-    bot_greetings = ['hello', 'hola', 'hi', 'hey', 'howdy']
-
-    user_greetings = ['wassup', 'hi', 'hey',
-                      'greetings', 'hola', 'howdy', 'hello']
-
-    for word in text.split():
-        if word in user_greetings:
-            return random.choice(bot_greetings)
+bot_name = "Doc Bot"
 
 
-def index_sort(list_var):
-    length = len(list_var)
-    list_index = list(range(0, length))
+def get_response(msg):
+    sentence = tokenize(msg)
+    X = BoW(sentence, all_words)
+    X = X.reshape(1, X.shape[0])
+    X = torch.from_numpy(X).to(device)
 
-    x = list_var
+    output = model(X)
+    _, predicted = torch.max(output, dim=1)
 
-    for i in range(length):
-        for j in range(length):
-            if x[list_index[i]] > x[list_index[j]]:
-                temp = list_index[i]
-                list_index[i] = list_index[j]
-                list_index[j] = temp
-    return list_index
+    tag = tags[predicted.item()]
 
+    probs = torch.softmax(output, dim=1)
+    prob = probs[0][predicted.item()]
+    if prob.item() > 0.75:
+        for intent in intents['intents']:
+            if tag == intent["tag"]:
+                return random.choice(intent['responses'])
 
-def bot_response(user_input):
-    user_input = user_input.lower()
-    sentence_list.append(user_input)
-    bot_response = ''
-    cm = CountVectorizer().fit_transform(sentence_list)
-
-    similarity_scores = cosine_similarity(cm[-1], cm)
-
-    similarity_scores_list = similarity_scores.flatten()
-
-    index = index_sort(similarity_scores_list)
-    index = index[1:]
-    response_flag = 0
-
-    j = 0
-    for i in range(len(index)):
-        if similarity_scores_list[index[i]] > 0.0:
-            bot_response = bot_response + ' ' + sentence_list[index[i]]
-            response_flag = 1
-            j = j + 1
-        if j > 2:
-            break
-
-        if response_flag == 0:
-            bot_response = bot_response + ' ' + "I apologize, I don't understand."
-
-        sentence_list.remove(user_input)
-
-        return bot_response
-
-
-print('Doc Bot: I am Doctor Bot or Doc Bot for short. I will answer your queries about CKD')
-
-exit_list = ['exit', 'see you later', 'bye', 'quit', 'break']
-
-while(True):
-    user_input = input()
-    if user_input.lower() in exit_list:
-        print('Doc Bot: Chat with you later!')
-        break
-    else:
-        if greeting_response(user_input) != None:
-            print('Doc Bot: '+greeting_response(user_input))
-        else:
-            print('Doc Bot: ' + bot_response(user_input))
+    return "I do not understand..."
