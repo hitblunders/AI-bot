@@ -1,4 +1,18 @@
-# AI-bot
+<div align="center">
+  
+<h1>AI-bot</h1>
+
+</div>
+
+</div>
+
+![AI-bot](https://socialify.git.ci/hitblunders/AI-bot/image?description=1&descriptionEditable=An%20NLP%20based%20intelligent%20chatbot&font=Raleway&forks=1&issues=1&language=1&owner=1&pattern=Overlapping%20Hexagons&pulls=1&stargazers=1&theme=Dark)
+
+<div align="center">
+  <img src="http://ForTheBadge.com/images/badges/uses-js.svg">
+</div>
+
+<div>
 
 **Intelligent bot**
 
